@@ -1,8 +1,10 @@
-[x,y] = meshgrid(-5:1:5,-5:1:5);
+bound = 10;
+
+[x,y] = meshgrid(-bound:1:bound,-bound:1:bound);
 
 SCALE = 2;
 a = 2;
-b = 5;
+b = bound;
 w = 1;
 
 r = sqrt(x.^2 + y.^2); % r in function of (x, y)
