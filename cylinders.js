@@ -3,8 +3,8 @@
 class Geometry {
 
     constructor(A, B) {
-        self.A = A;
-        self.B = B;
+        this.A = A;
+        this.B = B;
     }
 
     rotate_inner_ring(theta, xs, ys) {
@@ -18,14 +18,24 @@ class Geometry {
             let x = xs[i];
             let y = ys[i];
             let r = Math.sqrt(x * x + y * y);
-            let f = theta * self.A * self.A / (self.B * self.B - self.A * self.A) * (self.B * self.B / r - r);
-            xs_new.push(Math.cos(theta) * f + x);
-            ys_new.push(-Math.sin(theta) * f + y);
+            let f = theta * this.A * this.A / (this.B * this.B - this.A * this.A) * (this.B * this.B / r - r);
+            let x_y_new = this.rotate(f, x, y)
+            xs_new.push(x_y_new[0])
+            ys_new.push(x_y_new[1])
         }
         return [xs_new, ys_new];
     }
 
-    rotate_around_origin(theta, xs, ys) {
+    rotate(theta, x, y) {
+        // v_new = R*v, v = (x,y)^T, 
+        // R = [[cos(theta) -sin(theta)], 
+        //      [sin(theta) cos(theta)]]
+        let x_new = x * Math.cos(theta) - y * Math.sin(theta);
+        let y_new = x * Math.sin(theta) + y * Math.cos(theta);
+        return [x_new, y_new]
+    }
+
+    rotate_points(theta, xs, ys) {
         if (xs.length !== ys.length) {
             console.log('length of xs and ys must be equal');
             return false;
@@ -33,17 +43,14 @@ class Geometry {
         const xs_new = [];
         const ys_new = [];
         for (let i = 0; i < xs.length; i++) {
-            let x = xs[i];
-            let y = ys[i];
-            let r = Math.sqrt(x * x + y * y);
-            let f = theta * self.A * self.A / (self.B * self.B - self.A * self.A) * (self.B * self.B / r - r);
-            xs_new.push(Math.cos(theta) * f + x);
-            ys_new.push(-Math.sin(theta) * f + y);
+            let x_y_new = this.rotate(theta, xs[i], ys[i])
+            xs_new.push(x_y_new[0]);
+            ys_new.push(x_y_new[1]);
         }
         return [xs_new, ys_new];
     }
 
-    circ(N, x0 = 0, y0 = 0, scale = 1) {
+    circ(N = 100, x0 = 0, y0 = 0, scale = 1) {
         let xs = [];
         let ys = [];
         for (let i = 0; i < N; i++) {
@@ -55,6 +62,16 @@ class Geometry {
         ys.push(ys[0])
         return [xs, ys];
     }
+
+    line(N = 100, x0, y0, x1, y1) {
+        let xs = []
+        let ys = []
+        for (let i = 0; i < N; i++) {
+            xs.push(x0 + (x1 - x0) * i / N)
+            ys.push(y0 + (y1 - y0) * i / N)
+        }
+        return [xs, ys]
+    }
 }
 
 
@@ -64,8 +81,8 @@ let THETA = 0 // Angle of rotation of inner radius
 
 const get_data = () => {
     const geo = new Geometry(A, B)
-    let circle = geo.circ(1000, 3, 3)
-    let rotated_circle = geo.rotate_inner_ring(THETA, circle[0], circle[1])
+    let shape = geo.circ(1000, 3, 3)
+    let rotated_circle = geo.rotate_inner_ring(THETA, shape[0], shape[1])
 
     const inner_circle = {
         x: geo.circ(100, 0, 0, A)[0],
@@ -78,8 +95,8 @@ const get_data = () => {
     }
 
     const r0 = {
-        x: circle[0],
-        y: circle[1]
+        x: shape[0],
+        y: shape[1]
     }
 
     const r_rotated = {
