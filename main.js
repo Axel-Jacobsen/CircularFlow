@@ -1,14 +1,14 @@
 'use strict'
 
 // `transform.js` and `geometry.js` are included before this in `index.html`
+let X_OFF = 0.1
+let Y_OFF = 0
 
 const get_airfoil_data = () => {
-    const geo = new Geometry()
     const r = 1.13
-    const x_off = 0.1
-    const y_off = 0
-    const circle = geo.circ(1000, x_off, y_off, r)
-    const airfoil = Transform.joukowsky(circle.xs, circle.ys, r - math.sqrt(x_off * x_off + y_off * y_off))
+    const circle = Geometry.circ(1000, X_OFF, Y_OFF, r)
+    const airfoil = Transform.joukowsky(circle.xs, circle.ys, r - math.sqrt(X_OFF * X_OFF + Y_OFF * Y_OFF))
+
     return [{
         x: circle.xs,
         y: circle.ys,
@@ -21,13 +21,13 @@ const get_airfoil_data = () => {
     }]
 }
 
-const A = 2  // Inner radius
-const B = 10 // Outer radius
+const A = 1  // Inner radius
+const B = 4 // Outer radius
 let THETA = 0 // Angle of rotation of inner radius
 
 const get_rotated_ring = () => {
     const geo = new Geometry(A, B)
-    let shape = geo.circ(1000, 3, 3)
+    let shape = Geometry.circ(1000, 1.5, 1.5, 0.5)
     let rotated_circle = geo.rotate_inner_ring(THETA, shape.xs, shape.ys)
     return {
         x: rotated_circle.xs,
@@ -39,26 +39,20 @@ const get_rotated_ring = () => {
 // Get Taylor-Couette Data
 const get_tc_data = () => {
     const geo = new Geometry(A, B)
-    let shape = geo.circ(100, 3, 3)
 
     const inner_circle = {
-        x: geo.circ(100, 0, 0, A).xs,
-        y: geo.circ(100, 0, 0, A).ys
+        x: Geometry.circ(100, 0, 0, A).xs,
+        y: Geometry.circ(100, 0, 0, A).ys
     }
 
     const outer_circle = {
-        x: geo.circ(100, 0, 0, B).xs,
-        y: geo.circ(100, 0, 0, B).ys
-    }
-
-    const r0 = {
-        x: shape.xs,
-        y: shape.ys
+        x: Geometry.circ(100, 0, 0, B).xs,
+        y: Geometry.circ(100, 0, 0, B).ys
     }
 
     const r_rotated = get_rotated_ring()
 
-    return [inner_circle, outer_circle, r0, r_rotated]
+    return [inner_circle, outer_circle, r_rotated]
 }
 
 const layout = {
@@ -71,11 +65,11 @@ const layout = {
     hovermode: false,
     xaxis: {
         constrain: 'domain',
-        range: [-11, 11]
+        range: [-5, 5]
     },
     yaxis: {
         scaleanchor: 'x',
-        range: [-11, 11]
+        range: [-5, 5]
     }
 }
 
@@ -83,21 +77,53 @@ document.onkeypress = e => {
 
     e = e || window.event
 
-    if (e.key === 'j') {
-        THETA = THETA + 0.1
-    } else if (e.key === 'k') {
-        THETA = THETA - 0.1
-    } else if (e.key === 'l') {
-        THETA = 0
-    } else {
-        return
+    switch (e.key) {
+        // Airfoil
+        case 'w':
+            Y_OFF = Y_OFF + 0.1
+            break
+        case 'a':
+            X_OFF = X_OFF - 0.1
+            break
+        case 's':
+            Y_OFF = Y_OFF - 0.1
+            break
+        case 'd':
+            X_OFF = X_OFF + 0.1
+            break
+        case 'r':
+            X_OFF = 0.1
+            Y_OFF = 0
+            break
+        // Taylor-Couette
+        case 'j':
+            THETA = THETA + 0.1
+            break
+        case 'k':
+            THETA = THETA - 0.1
+            break
+        case 'l':
+            THETA = 0
+            break
+        default:
+            return
     }
 
-    let div = document.getElementById('theta');
-    div.innerHTML = '&Theta; = ' + THETA.toFixed(1) + ' radians'
+    let div1 = document.getElementById('x_off');
+    div1.innerHTML = 'x0 = ' + X_OFF.toFixed(1)
 
-    TaylorCouetteData[3] = get_rotated_ring()
+    let div2 = document.getElementById('y_off');
+    div2.innerHTML = 'y0 = ' + Y_OFF.toFixed(1)
 
+    let div3 = document.getElementById('theta');
+    div3.innerHTML = '&Theta; = ' + THETA.toFixed(1) + ' radians'
+
+    const fresh_data = get_airfoil_data()
+    AirfoilData[0] = fresh_data[0]
+    AirfoilData[1] = fresh_data[1]
+    TaylorCouetteData[2] = get_rotated_ring()
+
+    Plotly.redraw('airfoil')
     Plotly.redraw('taylorcouette')
 }
 

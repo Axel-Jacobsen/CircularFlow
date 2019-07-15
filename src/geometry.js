@@ -55,7 +55,7 @@ class Geometry {
         }
     }
 
-    circ(N = 100, x0 = 0, y0 = 0, scale = 1) {
+    static circ(N = 100, x0 = 0, y0 = 0, scale = 1) {
         let xs = [];
         let ys = [];
         for (let i = 0; i < N; i++) {
