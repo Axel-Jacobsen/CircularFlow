@@ -79,9 +79,20 @@ const A = 2  // Inner radius
 const B = 10 // Outer radius
 let THETA = 0 // Angle of rotation of inner radius
 
-const get_data = () => {
+const get_rotated_ring = () => {
     const geo = new Geometry(A, B)
     let shape = geo.circ(1000, 3, 3)
+    let rotated_circle = geo.rotate_inner_ring(THETA, shape[0], shape[1])
+    return {
+        x: rotated_circle[0],
+        y: rotated_circle[1],
+        type: 'markers'
+    }
+}
+
+const get_data = () => {
+    const geo = new Geometry(A, B)
+    let shape = geo.circ(100, 3, 3)
     let rotated_circle = geo.rotate_inner_ring(THETA, shape[0], shape[1])
 
     const inner_circle = {
@@ -99,11 +110,7 @@ const get_data = () => {
         y: shape[1]
     }
 
-    const r_rotated = {
-        x: rotated_circle[0],
-        y: rotated_circle[1],
-        type: 'markers'
-    }
+    const r_rotated = get_rotated_ring()
 
     return [inner_circle, outer_circle, r0, r_rotated]
 }
@@ -144,10 +151,7 @@ document.onkeypress = e => {
     let div = document.getElementById('theta');
     div.innerHTML = '&Theta; = ' + THETA.toFixed(1) + ' radians'
 
-    DATA[3] = {
-        x: get_data()[3].x,
-        y: get_data()[3].y
-    }
+    DATA[3] = get_rotated_ring()
 
     Plotly.redraw('chart')
 }
