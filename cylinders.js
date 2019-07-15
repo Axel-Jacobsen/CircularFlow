@@ -2,7 +2,7 @@
 
 class Geometry {
 
-    constructor(A, B) {
+    constructor(A = 1, B = 1) {
         this.A = A;
         this.B = B;
     }
@@ -74,6 +74,24 @@ class Geometry {
     }
 }
 
+class Transform {
+
+    static joukowsky(xs, ys, lambda) {
+        const ws = []
+        const xs_new = []
+        const ys_new = []
+        for (let i = 0; i < xs.length; i++) {
+            let z = math.complex(xs[i], ys[i])
+            let w = math.add(z, math.divide(lambda * lambda, z))
+            console.log(i, z, w);
+
+            xs_new.push(math.re(w))
+            ys_new.push(math.im(w))
+        }
+        return [xs_new, ys_new]
+    }
+
+}
 
 const A = 2  // Inner radius
 const B = 10 // Outer radius
@@ -90,10 +108,29 @@ const get_rotated_ring = () => {
     }
 }
 
-const get_data = () => {
+const get_airfoil_data = () => {
+    const geo = new Geometry()
+    const r = 1.13
+    const x_off = 0.1
+    const y_off = 0
+    const circle = geo.circ(1000, x_off, y_off, r)
+    const airfoil = Transform.joukowsky(circle[0], circle[1], r - math.sqrt(x_off * x_off + y_off * y_off))
+    return [{
+        x: circle[0],
+        y: circle[1],
+        type: 'markers'
+    },
+    {
+        x: airfoil[0],
+        y: airfoil[1],
+        type: 'markers'
+    }]
+}
+
+// Get Taylor-Couette Data
+const get_tc_data = () => {
     const geo = new Geometry(A, B)
     let shape = geo.circ(100, 3, 3)
-    let rotated_circle = geo.rotate_inner_ring(THETA, shape[0], shape[1])
 
     const inner_circle = {
         x: geo.circ(100, 0, 0, A)[0],
@@ -115,7 +152,8 @@ const get_data = () => {
     return [inner_circle, outer_circle, r0, r_rotated]
 }
 
-const DATA = get_data()
+const TaylorCouetteData = get_tc_data()
+const AirfoilData = get_airfoil_data()
 
 const layout = {
     autosize: true,
@@ -124,6 +162,7 @@ const layout = {
     showlegend: false,
     paper_bgcolor: '#f0f0f0',
     plot_bgcolor: '#f0f0f0',
+    hovermode: false,
     xaxis: {
         constrain: 'domain',
         range: [-11, 11]
@@ -151,9 +190,11 @@ document.onkeypress = e => {
     let div = document.getElementById('theta');
     div.innerHTML = '&Theta; = ' + THETA.toFixed(1) + ' radians'
 
-    DATA[3] = get_rotated_ring()
+    TaylorCouetteData[3] = get_rotated_ring()
 
-    Plotly.redraw('chart')
+    Plotly.redraw('taylorcouette')
 }
 
-Plotly.newPlot('chart', DATA, layout, { modeBarButtonsToRemove: ['toImage'] })
+Plotly.newPlot('airfoil', AirfoilData, layout, { 'displayModeBar': false })
+Plotly.newPlot('taylorcouette', TaylorCouetteData, layout, { 'displayModeBar': false })
+
