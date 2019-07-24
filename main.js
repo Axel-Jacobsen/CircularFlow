@@ -55,6 +55,27 @@ const get_tc_data = () => {
     return [inner_circle, outer_circle, r_rotated]
 }
 
+// "Don't Repeat Yourself" i know i know but copying 
+// a javascript object is almost designed to be
+// unecessarily difficult. So here ya go!
+const airflow_layout = {
+    autosize: true,
+    width: 600,
+    height: 600,
+    showlegend: false,
+    paper_bgcolor: '#f0f0f0',
+    plot_bgcolor: '#f0f0f0',
+    hovermode: false,
+    xaxis: {
+        constrain: 'domain',
+        range: [-2.5, 2.5]
+    },
+    yaxis: {
+        scaleanchor: 'x',
+        range: [-1.5, 1.5]
+    }
+}
+
 const layout = {
     autosize: true,
     width: 600,
@@ -80,16 +101,16 @@ document.onkeypress = e => {
     switch (e.key) {
         // Airfoil
         case 'w':
-            Y_OFF = Y_OFF + 0.1
+            Y_OFF = Y_OFF + 0.01
             break
         case 'a':
-            X_OFF = X_OFF - 0.1
+            X_OFF = X_OFF - 0.01
             break
         case 's':
-            Y_OFF = Y_OFF - 0.1
+            Y_OFF = Y_OFF - 0.01
             break
         case 'd':
-            X_OFF = X_OFF + 0.1
+            X_OFF = X_OFF + 0.01
             break
         case 'r':
             X_OFF = 0.1
@@ -110,10 +131,10 @@ document.onkeypress = e => {
     }
 
     let div1 = document.getElementById('x_off');
-    div1.innerHTML = 'x0 = ' + X_OFF.toFixed(1)
+    div1.innerHTML = 'x0 = ' + X_OFF.toFixed(2)
 
     let div2 = document.getElementById('y_off');
-    div2.innerHTML = 'y0 = ' + Y_OFF.toFixed(1)
+    div2.innerHTML = 'y0 = ' + Y_OFF.toFixed(2)
 
     let div3 = document.getElementById('theta');
     div3.innerHTML = '&Theta; = ' + THETA.toFixed(1) + ' radians'
@@ -130,6 +151,6 @@ document.onkeypress = e => {
 const AirfoilData = get_airfoil_data()
 const TaylorCouetteData = get_tc_data()
 
-Plotly.newPlot('airfoil', AirfoilData, layout, { 'displayModeBar': false })
+Plotly.newPlot('airfoil', AirfoilData, airflow_layout, { 'displayModeBar': false })
 Plotly.newPlot('taylorcouette', TaylorCouetteData, layout, { 'displayModeBar': false })
 
