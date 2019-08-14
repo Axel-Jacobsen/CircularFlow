@@ -70,7 +70,7 @@ class Geometry {
         }
     }
 
-    line(N = 100, x0, y0, x1, y1) {
+    static line(N = 100, x0, y0, x1, y1) {
         let xs = []
         let ys = []
         for (let i = 0; i < N; i++) {
@@ -82,4 +82,6 @@ class Geometry {
             ys: ys_new
         }
     }
+
 }
+
