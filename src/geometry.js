@@ -28,9 +28,6 @@ class Geometry {
     }
 
     rotate(theta, x, y) {
-        // v_new = R*v, v = (x,y)^T, 
-        // R = [[cos(theta) -sin(theta)], 
-        //      [sin(theta) cos(theta)]]
         return {
             x: x * Math.cos(theta) - y * Math.sin(theta),
             y: x * Math.sin(theta) + y * Math.cos(theta)
@@ -63,7 +60,7 @@ class Geometry {
             ys.push(Math.sin(2 * Math.PI * i / N) * scale + y0);
         }
         xs.push(xs[0])  // Complete the circle
-        ys.push(ys[1])
+        ys.push(ys[0])
         return {
             xs: xs,
             ys: ys
